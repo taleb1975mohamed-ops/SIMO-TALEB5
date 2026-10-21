@@ -20,6 +20,8 @@
             document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>');
         }
     </script>
+    <!-- جسر الدعم الأصلي للهواتف لحفظ الملفات في الذاكرة الخارجية ومشاركتها -->
+    <script src="/js/capacitor-bridge.js"></script>
     <style>
         /* قاعدة ذهبية: وضع الخط اللاتيني (Arial/Roboto) أولاً يجعل جميع الأرقام 0-9 تظهر لاتينية/فرنسية دائماً، بينما تظهر الحروف العربية بخط تجوال */
         * {
@@ -872,53 +874,60 @@
 
 <!-- 3. نافذة تحميل وحفظ تقرير PDF المخصصة للهاتف والكمبيوتر -->
 <div class="modal-overlay" id="pdfDownloadModal">
-    <div class="modal-box" style="max-width: 500px; max-height: 90vh; overflow-y: auto; text-align: center;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+    <div class="modal-box" style="max-width: 520px; max-height: 92vh; overflow-y: auto; text-align: center; padding: 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
             <h3 style="margin: 0; font-size: 1.15rem; color: #065f46; display:flex; align-items:center; gap: 8px;">
-                <span>📄</span> <span>تقرير الميزانية جاهز للحفظ</span>
+                <span>📄</span> <span>تقرير الميزانية جاهز للحفظ بهاتفك</span>
             </h3>
-            <button onclick="closePdfDownloadModal()" style="background:none; border:none; font-size:1.6rem; cursor:pointer; color:#64748b; line-height: 1; padding: 0 4px;">&times;</button>
+            <button onclick="closePdfDownloadModal()" style="background:none; border:none; font-size:1.8rem; cursor:pointer; color:#64748b; line-height: 1; padding: 0 4px;" title="إغلاق">&times;</button>
         </div>
 
-        <p style="font-size: 0.9rem; color: #475569; margin-bottom: 14px; text-align: right; line-height: 1.6;">
-            تم إنشاء التقرير بنجاح. إذا لم يبدأ التنزيل تلقائياً في هاتفك، اختر الطريقة الأنسب لك لحفظه أو إرساله فوراً:
-        </p>
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; text-align: right; font-size: 0.88rem; color: #1e40af; line-height: 1.6;">
+            <strong>📌 لكي يظهر ملف الـ PDF خارج التطبيق في هاتفك:</strong><br>
+            اضغط على <b>«مشاركة وحفظ في الخارج»</b> بالأسفل، واختر إما <b>«حفظ في الملفات / Enregistrer dans Fichiers»</b> أو أرسله لنفسك في <b>«واتساب»</b> ليظل محفوظاً في هاتفك دائماً.
+        </div>
 
         <!-- معاينة مصغرة حية للتقرير -->
-        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 8px; margin-bottom: 14px; max-height: 160px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-            <img id="modalReportPreview" src="" alt="معاينة التقرير" style="max-width: 100%; max-height: 150px; object-fit: contain; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 6px; margin-bottom: 14px; max-height: 140px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+            <img id="modalReportPreview" src="" alt="معاينة التقرير" style="max-width: 100%; max-height: 130px; object-fit: contain; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
         </div>
 
         <!-- أزرار الحفظ المباشر في الهاتف -->
         <div style="display: flex; flex-direction: column; gap: 10px;">
-            <!-- زر المشاركة في الهاتف / واتساب / درايف (يعمل 100% في أندرويد وآيفون) -->
-            <button id="modalShareBtn" onclick="shareActivePdf()" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; padding: 13px 16px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">
-                <span style="font-size: 1.25rem;">📲</span> 
-                <span>مشاركة وحفظ في الهاتف (واتساب / درايف / الملفات)</span>
+            <!-- زر المشاركة في الهاتف / واتساب / درايف (يعمل 100% في أندرويد وآيفون للظهور في الخارج) -->
+            <button id="modalShareBtn" onclick="shareActivePdf()" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; padding: 13px 16px; border-radius: 12px; font-weight: 800; font-size: 0.98rem; cursor: pointer; box-shadow: 0 4px 14px rgba(37,99,235,0.3);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.3rem;">📲</span> 
+                    <span>⭐ مشاركة وحفظ في الخارج (واتساب / درايف / ملفات الهاتف)</span>
+                </div>
+                <small style="font-size: 0.78rem; opacity: 0.92; font-weight: normal;">(الخيار الأفضل ليظهر الملف خارج التطبيق في مجلد الملفات أو واتساب)</small>
             </button>
 
-            <!-- زر التنزيل المباشر بصيغة PDF -->
-            <button onclick="handleDirectPdfDownload()" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, #059669, #047857); color: white; border: none; padding: 13px 16px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 12px rgba(5,150,105,0.25);">
-                <span style="font-size: 1.25rem;">📥</span> 
-                <span>تنزيل ملف الـ PDF مباشرة للجهاز</span>
+            <!-- زر التنزيل المباشر بصيغة PDF لمجلد المستندات بالهاتف -->
+            <button onclick="handleDirectPdfDownload()" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: linear-gradient(135deg, #059669, #047857); color: white; border: none; padding: 12px 16px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 12px rgba(5,150,105,0.25);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.25rem;">📥</span> 
+                    <span>حفظ ملف الـ PDF في مجلد المستندات (Documents) بالهاتف</span>
+                </div>
+                <small style="font-size: 0.76rem; opacity: 0.92; font-weight: normal;">(يحفظ في ذاكرة الهاتف لتجده في تطبيق ملفاتي / Mes fichiers)</small>
             </button>
 
             <!-- زر حفظ التقرير كصورة عالية الدقة في معرض الصور (Galerie) -->
-            <button onclick="saveReportAsImage()" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: #0284c7; color: white; border: none; padding: 12px 16px; border-radius: 12px; font-weight: 700; font-size: 0.92rem; cursor: pointer;">
+            <button onclick="saveReportAsImage()" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #0284c7; color: white; border: none; padding: 11px 16px; border-radius: 12px; font-weight: 700; font-size: 0.92rem; cursor: pointer;">
                 <span style="font-size: 1.15rem;">🖼️</span> 
-                <span>حفظ التقرير كصورة في ألبوم الصور (Galerie Photos)</span>
+                <span>حفظ التقرير كصورة في معرض الصور (Galerie Photos)</span>
             </button>
 
             <!-- زر فتح التقرير في المتصفح -->
-            <button onclick="openPdfInNewTab()" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 0.88rem; cursor: pointer;">
+            <button onclick="openPdfInNewTab()" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 0.88rem; cursor: pointer;">
                 <span>👁️</span> 
-                <span>فتح وعرض التقرير كاملاً في نافذة جديدة</span>
+                <span>عرض ومعاينة التقرير كاملاً</span>
             </button>
         </div>
 
         <div style="margin-top: 14px; text-align: center;">
             <button onclick="closePdfDownloadModal()" style="background: none; border: none; color: #64748b; font-size: 0.88rem; font-weight: bold; cursor: pointer; text-decoration: underline;">
-                إغلاق النافذة
+                إغلاق هذه النافذة
             </button>
         </div>
     </div>
@@ -1174,6 +1183,72 @@
         }
     }
 
+    // تحويل Blob إلى Base64 للتعامل مع حفظ الملفات بهواتف أندرويد عبر Capacitor
+    function blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                if (typeof reader.result === 'string') {
+                    const parts = reader.result.split(',');
+                    resolve(parts.length > 1 ? parts[1] : parts[0]);
+                } else {
+                    resolve('');
+                }
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    // حفظ ملف PDF في مجلد المستندات بالهاتف (Documents) ليظهر في تطبيق ملفاتي خارج التطبيق
+    async function savePdfToPhoneDocuments(silent = false) {
+        if (!currentPdfBlob) {
+            showStatus('جاري إنشاء التقرير أولاً...', 'loading');
+            await downloadPdfReport();
+        }
+        if (!currentPdfBlob) return null;
+
+        // إذا كان التطبيق يعمل عبر Capacitor في الهاتف (تطبيق أندرويد APK)
+        if (window.AppCapacitor && window.AppCapacitor.isNative()) {
+            try {
+                if (!silent) showStatus('جاري حفظ ملف الـ PDF في ذاكرة الهاتف (Documents)...', 'loading');
+                const base64Data = await blobToBase64(currentPdfBlob);
+                
+                if (window.AppCapacitor.Filesystem && window.AppCapacitor.Filesystem.requestPermissions) {
+                    try { await window.AppCapacitor.Filesystem.requestPermissions(); } catch(e) {}
+                }
+
+                const writeRes = await window.AppCapacitor.Filesystem.writeFile({
+                    path: currentPdfFileName || 'Taqreer-Meezaniya.pdf',
+                    data: base64Data,
+                    directory: window.AppCapacitor.Directory.Documents,
+                    recursive: true
+                });
+
+                if (!silent) {
+                    showStatus('✅ تم حفظ التقرير في مجلد Documents بالهاتف! ستجده في تطبيق الملفات (Mes fichiers).', 'success');
+                }
+                return writeRes.uri;
+            } catch (err) {
+                console.warn('Documents save failed, trying Cache folder:', err);
+                try {
+                    const base64Data = await blobToBase64(currentPdfBlob);
+                    const cacheRes = await window.AppCapacitor.Filesystem.writeFile({
+                        path: currentPdfFileName || 'Taqreer-Meezaniya.pdf',
+                        data: base64Data,
+                        directory: window.AppCapacitor.Directory.Cache,
+                        recursive: true
+                    });
+                    return cacheRes.uri;
+                } catch(err2) {
+                    console.error('All native file writes failed:', err2);
+                }
+            }
+        }
+        return null;
+    }
+
+    // مشاركة وحفظ التقرير (الخيار الأضمن 100% ليظهر خارج التطبيق في واتساب أو ملفات الهاتف)
     async function shareActivePdf() {
         if (!currentPdfBlob) {
             showStatus('جاري إنشاء التقرير أولاً...', 'loading');
@@ -1181,6 +1256,27 @@
         }
         if (!currentPdfBlob) return;
 
+        // 1. إذا كان التطبيق مثبتاً كـ APK على أندرويد (Capacitor)
+        if (window.AppCapacitor && window.AppCapacitor.isNative()) {
+            try {
+                showStatus('جاري تجهيز المشاركة والحفظ بهاتفك...', 'loading');
+                const fileUri = await savePdfToPhoneDocuments(true);
+                if (fileUri && window.AppCapacitor.Share && window.AppCapacitor.Share.share) {
+                    await window.AppCapacitor.Share.share({
+                        title: 'تقرير تنظيم الميزانية والحساب التلقائي',
+                        text: 'تقرير الميزانية والمصاريف الشهرية - إعداد: محمد طالب',
+                        url: fileUri,
+                        dialogTitle: 'حفظ ومشاركة التقرير في الهاتف'
+                    });
+                    showStatus('✅ تم فتح نافذة الحفظ والمشاركة! اختر واتساب أو حفظ في الملفات.', 'success');
+                    return;
+                }
+            } catch(e) {
+                console.warn('Native Capacitor share failed, fallback to web:', e);
+            }
+        }
+
+        // 2. إذا كان يعمل في متصفح الهاتف (Android Chrome أو iPhone Safari)
         try {
             const file = new File([currentPdfBlob], currentPdfFileName || 'Taqreer-Meezaniya.pdf', { type: 'application/pdf' });
             if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -1189,75 +1285,115 @@
                     text: 'تقرير الميزانية والمصاريف الشهرية - إعداد: محمد طالب',
                     files: [file]
                 });
-                showStatus('✅ تمت مشاركة وحفظ التقرير بنجاح!', 'success');
-                return;
-            } else if (navigator.share) {
-                await navigator.share({
-                    title: 'تقرير تنظيم الميزانية والحساب التلقائي',
-                    text: 'تقرير الميزانية والمصاريف الشهرية - إعداد: محمد طالب'
-                });
+                showStatus('✅ تم إرسال وحفظ التقرير بنجاح! ستجده في التطبيق المختار.', 'success');
                 return;
             }
         } catch(e) {
             if (e.name !== 'AbortError') {
-                console.warn('Share issue, falling back to download:', e);
+                console.warn('Web share failed, proceeding to direct download:', e);
                 handleDirectPdfDownload();
             }
             return;
         }
 
-        // في حال عدم دعم navigator.share، يتم التنزيل المباشر
+        // 3. في حال عدم دعم المشاركة
         handleDirectPdfDownload();
     }
 
-    function handleDirectPdfDownload() {
+    // تنزيل ملف PDF المباشر لذاكرة الهاتف
+    async function handleDirectPdfDownload() {
         if (!currentPdfBlob || !currentPdfUrl) {
-            downloadPdfReport();
-            return;
+            await downloadPdfReport();
+            if (!currentPdfBlob) return;
         }
 
+        // في تطبيق أندرويد الأصلي (Capacitor)، حفظ مباشر في Documents
+        if (window.AppCapacitor && window.AppCapacitor.isNative()) {
+            const uri = await savePdfToPhoneDocuments(false);
+            if (uri) return;
+        }
+
+        // في المتصفح، تنزيل طبيعي بدون حصر المستخدم داخل شاشة التطبيق
         try {
             const dl = document.createElement('a');
             dl.href = currentPdfUrl;
             dl.download = currentPdfFileName || 'Taqreer-Meezaniya.pdf';
-            dl.target = '_blank';
             document.body.appendChild(dl);
             dl.click();
             setTimeout(() => {
                 if (document.body.contains(dl)) document.body.removeChild(dl);
             }, 1200);
+            showStatus('📥 تم طلب تنزيل ملف PDF! ستجده في مجلد التنزيلات (Téléchargements).', 'success');
         } catch(e) {
-            console.warn('Direct click download failed:', e);
+            console.warn('Direct download error:', e);
         }
-
-        // للهواتف الذكية (أندرويد وآيفون): فتح التقرير أيضاً في لسان جديد لعرضه وحفظه عبر المتصفح
-        const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-        if (isMobile) {
-            setTimeout(() => {
-                window.open(currentPdfUrl, '_blank');
-            }, 300);
-        }
-
-        showStatus('📥 تم طلب تنزيل ملف PDF!', 'success');
     }
 
-    function saveReportAsImage() {
+    // حفظ التقرير كصورة عالية الدقة في معرض الصور (Galerie Photos)
+    async function saveReportAsImage() {
         if (!currentReportImgData) {
-            showStatus('جاري تجهيز الصورة...', 'loading');
-            downloadPdfReport();
-            return;
+            showStatus('جاري تجهيز صورة التقرير...', 'loading');
+            await downloadPdfReport();
+            if (!currentReportImgData) return;
         }
+
+        const dateStr = new Date().toISOString().split('T')[0];
+        const imgFileName = `Taqreer-Meezaniya-MohamedTaleb-${dateStr}.png`;
+
+        // 1. تطبيق أندرويد الأصلي (Capacitor)
+        if (window.AppCapacitor && window.AppCapacitor.isNative()) {
+            try {
+                showStatus('جاري حفظ صورة التقرير في الهاتف...', 'loading');
+                const base64Data = currentReportImgData.split(',')[1];
+                const saved = await window.AppCapacitor.Filesystem.writeFile({
+                    path: imgFileName,
+                    data: base64Data,
+                    directory: window.AppCapacitor.Directory.Documents,
+                    recursive: true
+                });
+                if (window.AppCapacitor.Share && window.AppCapacitor.Share.share) {
+                    await window.AppCapacitor.Share.share({
+                        title: 'تقرير الميزانية - صورة عالية الدقة',
+                        url: saved.uri,
+                        dialogTitle: 'حفظ الصورة في المعرض'
+                    });
+                }
+                showStatus('✅ تم حفظ صورة التقرير في الهاتف وستظهر في ألبوم الصور!', 'success');
+                return;
+            } catch(e) {
+                console.warn('Native image save failed:', e);
+            }
+        }
+
+        // 2. متصفح الهاتف عبر Web Share
+        try {
+            const res = await fetch(currentReportImgData);
+            const blob = await res.blob();
+            const file = new File([blob], imgFileName, { type: 'image/png' });
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'تقرير تنظيم الميزانية والحساب التلقائي',
+                    text: 'صورة تقرير الميزانية الشهرية - إعداد: محمد طالب',
+                    files: [file]
+                });
+                showStatus('✅ تم حفظ صورة التقرير بنجاح في هاتفك!', 'success');
+                return;
+            }
+        } catch(e) {
+            if (e.name === 'AbortError') return;
+        }
+
+        // 3. تنزيل كصورة عادية
         try {
             const dl = document.createElement('a');
             dl.href = currentReportImgData;
-            const dateStr = new Date().toISOString().split('T')[0];
-            dl.download = `Taqreer-Meezaniya-MohamedTaleb-${dateStr}.png`;
+            dl.download = imgFileName;
             document.body.appendChild(dl);
             dl.click();
             setTimeout(() => {
                 if (document.body.contains(dl)) document.body.removeChild(dl);
             }, 1200);
-            showStatus('🖼️ تم تنزيل صورة التقرير عالية الدقة لهاتفك!', 'success');
+            showStatus('🖼️ تم تنزيل صورة التقرير! ستجدها في مجلد التنزيلات أو معرض الصور.', 'success');
         } catch(e) {
             console.error('Image download error:', e);
         }
@@ -1658,19 +1794,22 @@
             currentPdfUrl = blobUrl;
             currentPdfFileName = fileName;
 
-            // 1. محاولة تنزيل تلقائي فوري عبر الرابط (للكمبيوتر والمتصفحات المتوافقة)
-            try {
-                const dl = document.createElement('a');
-                dl.href = blobUrl;
-                dl.download = fileName;
-                dl.style.display = 'none';
-                document.body.appendChild(dl);
-                dl.click();
-                setTimeout(() => {
-                    if (document.body.contains(dl)) document.body.removeChild(dl);
-                }, 1000);
-            } catch (e) {
-                console.warn('Auto download attempt bypassed:', e);
+            // 1. التنزيل التلقائي الفوري لأجهزة الكمبيوتر فقط (حتى لا يتم حصر الملف في ذاكرة التطبيق بالهاتف)
+            const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (window.AppCapacitor && window.AppCapacitor.isNative());
+            if (!isMobileDevice) {
+                try {
+                    const dl = document.createElement('a');
+                    dl.href = blobUrl;
+                    dl.download = fileName;
+                    dl.style.display = 'none';
+                    document.body.appendChild(dl);
+                    dl.click();
+                    setTimeout(() => {
+                        if (document.body.contains(dl)) document.body.removeChild(dl);
+                    }, 1000);
+                } catch (e) {
+                    console.warn('Auto download attempt bypassed:', e);
+                }
             }
 
             // 2. فتح نافذة الحفظ التفاعلية المخصصة للهاتف والكمبيوتر فوراً
