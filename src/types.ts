@@ -1,48 +1,40 @@
-export interface IncomeItem {
-  id: string;
-  name: string;
-  amount: number;
-  date?: string;
-  notes?: string;
+export interface SalaryDetails {
+  imam: string | number;
+  khatib: string | number;
+  moaden: string | number;
+  cleaner: string | number;
+  hizb: string | number;
+  hadith: string | number;
+  insp: string | number;
 }
 
-export interface PurchaseItem {
-  id: string;
-  name: string;
-  price: number;
-  qty: number;
-  unit?: string; // 'كغ' | 'وحدة' | 'لتر'
-  date?: string;
+export interface ReligiousPerson {
+  id?: string;
+  p_ar: string;
+  p_fr: string;
+  p_cin: string;
+  p_phone: string;
+  p_dob: string;
+  p_pob: string;
+  p_personal_addr: string;
+  p_status: 'متزوج' | 'عازب' | 'أرمل' | 'مطلق' | string;
+  p_wives: string | number;
+  p_kids: string | number;
+  p_males: string | number;
+  p_females: string | number;
+  p_ins: 'لا يوجد' | 'CNOPS' | 'CNSS' | 'AMO' | string;
+  p_education: string;
+  
+  // Mosque info
+  m_name: string;
+  m_code: string;
+  m_addr: string;
+  m_city: string;
+  m_join_date: string;
+  
+  // Salary
+  salary: number;
+  sal_details: SalaryDetails;
 }
 
-export interface ExpenseItem {
-  id: string;
-  name: string;
-  amount: number;
-  category?: string;
-  date?: string;
-}
-
-export interface WafirItem {
-  id: string;
-  name: string;
-  amount: number;
-  category?: string; // 'طوارئ' | 'ادخار بنكي' | 'دارت/قرعة' | 'صندوق المنزل' | 'مشتريات توفير' | 'أخرى'
-  notes?: string;
-  date?: string;
-}
-
-export interface AccountingData {
-  incomes: IncomeItem[];
-  vegetables: PurchaseItem[];
-  meats: PurchaseItem[];
-  groceries: PurchaseItem[];
-  wafir: WafirItem[];
-  expenses: ExpenseItem[];
-  vegList: string[];
-  meatTypes: string[];
-  grocList: string[];
-  monthlyBudgetLimit?: number;
-}
-
-export type SectionType = 'income' | 'vegetables' | 'meats' | 'groceries' | 'wafir' | 'expenses' | 'summary';
+export type TaskType = 'all' | 'imam' | 'khatib' | 'moaden' | 'cleaner' | 'hizb' | 'hadith' | 'insp';
