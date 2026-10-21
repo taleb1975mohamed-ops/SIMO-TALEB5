@@ -1,0 +1,138 @@
+name: Build Android APK (استخراج تطبيق أندرويد)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'رقم الإصدار (مثال: 1.0.0)'
+        required: false
+        default: '1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    name: بناء وتجهيز ملف الـ APK المستقل
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 تنزيل كود المستودع (Checkout)
+        uses: actions/checkout@v4
+
+      - name: ⚙️ إعداد بيئة Node.js v22 (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: ☕ إعداد بيئة Java 21 (JDK Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: 🤖 قبول تراخيص Android SDK
+        run: |
+          mkdir -p $HOME/.android
+          touch $HOME/.android/repositories.cfg
+          if [ -d "$ANDROID_HOME/cmdline-tools/latest/bin" ]; then
+            yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          fi
+
+      - name: 📦 تثبيت حزم المشروع (Install Dependencies)
+        run: |
+          npm install --legacy-peer-deps
+
+      - name: 🏗️ بناء تطبيق الويب (Build Web Assets)
+        run: |
+          npm run build
+        env:
+          CI: false
+
+      - name: 🔄 تهيئة وإعداد منصة أندرويد عبر Capacitor
+        run: |
+          if [ ! -d "android" ]; then
+            echo "إضافة منصة أندرويد المستقلة..."
+            npx cap add android
+          fi
+          echo "مزامنة ملفات الويب مع مشروع أندرويد..."
+          npx cap sync android
+
+      - name: 🔧 ضبط توافقية إصدار Java 21 لمشروع أندرويد
+        run: |
+          if [ -f "android/app/build.gradle" ]; then
+            sed -i 's/JavaVersion.VERSION_17/JavaVersion.VERSION_21/g' android/app/build.gradle || true
+            sed -i 's/JavaVersion.VERSION_1_8/JavaVersion.VERSION_21/g' android/app/build.gradle || true
+          fi
+
+      - name: 🔑 إعطاء صلاحية التشغيل لـ Gradle
+        run: |
+          chmod +x android/gradlew
+
+      - name: 🔨 تجميع وبناء ملف الـ APK النظيف المتوافق مع جميع الهواتف
+        run: |
+          cd android
+          CURRENT_JAVA_HOME="${JAVA_HOME_21_X64:-$JAVA_HOME}"
+          export JAVA_HOME="$CURRENT_JAVA_HOME"
+          export PATH="$JAVA_HOME/bin:$PATH"
+          echo "Java version used for build:"
+          java -version
+          ./gradlew clean assembleDebug --no-daemon --stacktrace -Dorg.gradle.java.home="$JAVA_HOME" -Dfile.encoding=UTF-8
+
+      - name: 📂 استخراج وتجهيز ملف الـ APK للتثبيت المباشر
+        run: |
+          mkdir -p output-apk
+          APK_RAW=$(find android/ -name "*debug.apk" | head -n 1)
+          if [ -z "$APK_RAW" ]; then
+            APK_RAW=$(find android/ -name "*.apk" | head -n 1)
+          fi
+          if [ -n "$APK_RAW" ]; then
+            echo "تم العثور على ملف APK سليم: $APK_RAW"
+            cp "$APK_RAW" output-apk/MohamedTaleb-BudgetAuto.apk
+            ls -lh output-apk/
+          else
+            echo "خطأ: لم يتم العثور على أي ملف APK تم توليده!"
+            exit 1
+          fi
+
+      - name: 🚀 رفع ملف الـ APK في Actions Artifacts للتحميل المباشر
+        uses: actions/upload-artifact@v4
+        with:
+          name: MohamedTaleb-BudgetAuto-APK
+          path: output-apk/MohamedTaleb-BudgetAuto.apk
+          retention-days: 30
+
+      - name: 🏷️ إنشاء إصدار وتوفير رابط تحميل دائم (GitHub Release)
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: output-apk/MohamedTaleb-BudgetAuto.apk
+          name: "تطبيق تنظيم الميزانية والحساب التلقائي - محمد طالب (APK v${{ github.event.inputs.release_version || '1.0.0' }})"
+          tag_name: "v${{ github.event.inputs.release_version || '1.0.0' }}-${{ github.run_number }}"
+          body: |
+            ### 📱 تطبيق تنظيم الميزانية والحساب التلقائي - محمد طالب جاهز للتحميل والتثبيت!
+            
+            - **اسم التطبيق:** تنظيم الميزانية والحساب التلقائي
+            - **معرف الحزمة المستقل (Package ID):** `com.mohamedtaleb.budgetauto`
+            - **صاحب التطبيق:** محمد طالب
+            - **اسم الملف:** `MohamedTaleb-BudgetAuto.apk`
+            - **ميزة هذا الإصدار:** تطبيق مستقل تماماً يثبت بجانب تطبيقك القديم دون أن يمسحه أو يطلب تحديثه.
+            
+            #### 📥 خطوات التثبيت الناجح 100% على هاتفك:
+            1. **إذا كنت قد قمت بتثبيت نسخة سابقة تعذر فتحها:** يرجى حذفها أولاً (Désinstaller).
+            2. اضغط على رابط `MohamedTaleb-BudgetAuto.apk` لتحميل الملف.
+            3. عند ظهور تنبيه "قد يكون ضاراً" (تنبيه عادي لأي تطبيق خارج متجر بلاي)، اختر **"التنزيل على أي حال" (Télécharger quand même)**.
+            4. عند فتح الملف وتثبيته:
+               - إذا ظهرت رسالة "حظر التثبيت من مصادر غير معروفة"، اضغط على **"الإعدادات" (Paramètres)** وفعّل خيار **"السماح بتثبيت التطبيقات من هذا المصدر" (Autoriser cette source)**.
+               - إذا ظهر تنبيه Play Protect، اضغط على **"مزيد من التفاصيل" (Plus de détails)** ثم **"التثبيت على أي حال" (Installer quand même)**.
+            
+            #### 🚀 طريقة التثبيت الأسهل والأسرع بدون أي ملف APK (تطبيق PWA):
+            افتح رابط الموقع من متصفح جوجل كروم على هاتفك، اضغط على زر الخيارات (⋮) واختر **"إضافة إلى الشاشة الرئيسية"** أو **"تثبيت التطبيق"**، وسيثبت في ثوانٍ معدودة كأيقونة مستقلة بدون أي رسائل أمان!
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true

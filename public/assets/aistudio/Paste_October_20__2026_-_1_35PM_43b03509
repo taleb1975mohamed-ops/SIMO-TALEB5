@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق تنظيم الميزانية والحساب التلقائي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #2c3e50;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 680px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #16a085, #27ae60);
+            color: white;
+            padding: 18px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-save-main {
+            background: #27ae60;
+            color: white;
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.25);
+        }
+
+        .btn-save-main:hover {
+            background: #219150;
+        }
+
+        .btn-delete-all {
+            background: #e74c3c;
+            color: white;
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.25);
+        }
+
+        .btn-delete-all:hover {
+            background: #c0392b;
+        }
+
+        .salary-box {
+            background: #eef9f6;
+            border: 2px solid #27ae60;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .salary-box label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            color: #16a085;
+        }
+
+        /* حظر تحويل الأرقام للعربية في خانة الصالير */
+        .salary-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #27ae60;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            direction: ltr !important;
+            text-align: right;
+            outline: none;
+            font-family: Arial, Helvetica, Roboto, sans-serif !important;
+            font-variant-numeric: lining-nums tabular-nums !important;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            background: #e0e6ed;
+            color: #34495e;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: #27ae60;
+            color: white;
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.05rem;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            border-right: 4px solid #27ae60;
+            padding-right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-add {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.82rem;
+        }
+
+        .btn-add:hover {
+            background: #219150;
+        }
+
+        .btn-edit {
+            background: #f39c12;
+            color: white;
+            border: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-edit:hover {
+            background: #d68910;
+        }
+
+        .btn-del {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-del:hover {
+            background: #c0392b;
+        }
+
+        .item-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        .item-table th, .item-table td {
+            padding: 8px 4px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+        .item-table th {
+            background-color: #f8fafc;
+            color: #34495e;
+            font-weight: bold;
+        }
+
+        /* حظر تحويل الأرقام في مدخلات الجدول */
+        .num-input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            direction: ltr !important;
+            font-size: 0.95rem;
+            font-family: Arial, Helvetica, Roboto, sans-serif !important;
+            font-variant-numeric: lining-nums tabular-nums !important;
+        }
+
+        .name-input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            direction: rtl;
+            text-align: right;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .subtotal {
+            font-weight: bold;
+            color: #27ae60;
+            direction: ltr !important;
+            font-family: Arial, Helvetica, Roboto, sans-serif !important;
+            font-variant-numeric: lining-nums tabular-nums !important;
+            unicode-bidi: embed;
+        }
+
+        .item-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .item-title {
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .item-sub {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+
+        .item-input-single {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            direction: ltr !important;
+            text-align: right;
+            font-family: Arial, Helvetica, Roboto, sans-serif !important;
+            font-variant-numeric: lining-nums tabular-nums !important;
+        }
+
+        .week-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #27ae60;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            background: #e8f8f5;
+            font-weight: bold;
+            outline: none;
+        }
+
+        .summary-card {
+            background: #fdfefe;
+            border: 2px dashed #27ae60;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.92rem;
+        }
+
+        .summary-row.total {
+            border-top: 1px solid #cbd5e1;
+            padding-top: 10px;
+            font-weight: bold;
+            font-size: 1.05rem;
+        }
+
+        .val-num {
+            direction: ltr !important;
+            font-weight: bold;
+            font-family: Arial, Helvetica, Roboto, sans-serif !important;
+            font-variant-numeric: lining-nums tabular-nums !important;
+            unicode-bidi: embed;
+        }
+
+        .rem-positive {
+            color: #27ae60;
+        }
+
+        .rem-negative {
+            color: #e74c3c;
+        }
+
+        .summary-box-detail {
+            background: #f8fafc;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .summary-box-detail h3 {
+            font-size: 1rem;
+            color: #16a085;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .summary-item-list {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 10px;
+        }
+
+        .summary-item-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dashed #e5e7eb;
+            font-size: 0.88rem;
+        }
+
+        .summary-subtotal-badge {
+            background: #e8f8f5;
+            color: #27ae60;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: left;
+            direction: ltr !important;
+            font-size: 0.95rem;
+            font-family: Arial, Helvetica, Roboto, sans-serif !important;
+            font-variant-numeric: lining-nums tabular-nums !important;
+        }
+
+        .action-cell {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+        }
+
+        .latin-num {
+            font-family: Arial, Helvetica, Roboto, sans-serif !important;
+            direction: ltr !important;
+            display: inline-block;
+            unicode-bidi: embed;
+            font-variant-numeric: lining-nums tabular-nums !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>تطبيق الميزانية والملخص الشامل</h1>
+        <p>حساب فوري بأرقام فرنسية/لاتينية</p>
+    </div>
+
+    <!-- شريط أزرار الحفظ وحذف الكل -->
+    <div class="action-bar">
+        <button class="btn-action btn-save-main" onclick="saveAllData()">💾 حفظ البيانات</button>
+        <button class="btn-action btn-delete-all" onclick="clearAllData()">🗑️ حذف الكل</button>
+    </div>
+
+    <!-- الصالير -->
+    <div class="salary-box">
+        <label for="salaryInput">المدخول الشهري (الصالير بالدرهم):</label>
+        <input type="number" id="salaryInput" value="3000" lang="fr" dir="ltr" class="num-input" oninput="calculateBudget()">
+    </div>
+
+    <!-- الأقسام -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('weeklyTab', this)">الأسابيع والخضار</button>
+        <button class="tab-btn" onclick="switchTab('meatsTab', this)">اللحوم والدواجن</button>
+        <button class="tab-btn" onclick="switchTab('monthlyTab', this)">الهري ومواد التموين</button>
+        <button class="tab-btn" onclick="switchTab('gasTab', this)">قسم البوطة</button>
+        <button class="tab-btn" style="background:#27ae60; color:#fff;" onclick="switchTab('fullSummaryTab', this)">📊 الملخص الشامل</button>
+    </div>
+
+    <!-- 1. الخضار والأسابيع -->
+    <div id="weeklyTab" class="tab-content active">
+        <div class="section-title">
+            <span>اختر الأسبوع:</span>
+        </div>
+
+        <select class="week-select" id="weekSelector" onchange="switchWeek()">
+            <option value="1">الأسبوع 1</option>
+            <option value="2">الأسبوع 2</option>
+            <option value="3">الأسبوع 3</option>
+            <option value="4">الأسبوع 4</option>
+        </select>
+
+        <div class="section-title">
+            <span>قائمة الخضار للأسبوع</span>
+            <button class="btn-add" onclick="addVegRow()">+ إضافة خضرة جديدة</button>
+        </div>
+
+        <table class="item-table">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">نوع الخضرة</th>
+                    <th style="width: 18%;">الكمية (kg)</th>
+                    <th style="width: 20%;">الثمن/kg</th>
+                    <th style="width: 18%;">المجموع</th>
+                    <th style="width: 14%;">خيارات</th>
+                </tr>
+            </thead>
+            <tbody id="vegTableBody"></tbody>
+        </table>
+
+        <div class="item-card">
+            <div class="item-info">
+                <span class="item-title">مصاريف يومية إضافية للأسبوع</span>
+                <span class="item-sub">خبز، حليب ومصاريف طارئة</span>
+            </div>
+            <input type="number" class="item-input-single" id="otherCost" value="50" lang="fr" dir="ltr" oninput="saveWeekData()">
+        </div>
+    </div>
+
+    <!-- 2. اللحوم والدواجن والأسماك -->
+    <div id="meatsTab" class="tab-content">
+        <div class="section-title">
+            <span>قسم اللحوم والدواجن والأسماك (للأسبوع المفتوح)</span>
+            <button class="btn-add" onclick="addMeatRow()">+ إضافة نوع جديد</button>
+        </div>
+
+        <table class="item-table">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">النوع</th>
+                    <th style="width: 18%;">الكمية (kg)</th>
+                    <th style="width: 20%;">الثمن/kg</th>
+                    <th style="width: 18%;">المجموع</th>
+                    <th style="width: 14%;">خيارات</th>
+                </tr>
+            </thead>
+            <tbody id="meatTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- 3. الهري ومواد التموين الشهري -->
+    <div id="monthlyTab" class="tab-content">
+        <div class="section-title">
+            <span>مواد التموين الشهري (الهري)</span>
+            <button class="btn-add" onclick="addGrocRow()">+ إضافة مادة جديدة</button>
+        </div>
+
+        <table class="item-table">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">المادة الغذائية</th>
+                    <th style="width: 18%;">الكمية/العدد</th>
+                    <th style="width: 20%;">الثمن/الواحدة</th>
+                    <th style="width: 18%;">المجموع</th>
+                    <th style="width: 14%;">خيارات</th>
+                </tr>
+            </thead>
+            <tbody id="grocTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- 4. قسم البوطة -->
+    <div id="gasTab" class="tab-content">
+        <div class="section-title">
+            <span>إدارة غاز الطهي (البوطة)</span>
+            <button class="btn-add" onclick="addGasRow()">+ إضافة بوطة جديدة</button>
+        </div>
+
+        <table class="item-table">
+            <thead>
+                <tr>
+                    <th style="width: 38%;">وصف البوطة</th>
+                    <th style="width: 18%;">العدد</th>
+                    <th style="width: 20%;">سعر الواحدة</th>
+                    <th style="width: 18%;">المجموع</th>
+                    <th style="width: 14%;">خيارات</th>
+                </tr>
+            </thead>
+            <tbody id="gasTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- 5. قسم الملخص الشامل -->
+    <div id="fullSummaryTab" class="tab-content">
+        <div class="section-title">
+            <span>📋 الملخص التفصيلي والشامل لجميع المصاريف</span>
+        </div>
+
+        <div id="summaryDetailsContainer"></div>
+    </div>
+
+    <!-- الشريط الحسابي السريع في الأسفل -->
+    <div class="summary-card">
+        <div class="summary-row">
+            <span>مجموع خضار الأسبوع الحالي:</span>
+            <span class="val-num" id="currWeekVeg">0 DH</span>
+        </div>
+        <div class="summary-row">
+            <span>مجموع لحوم وأسماك الأسبوع الحالي:</span>
+            <span class="val-num" id="currWeekMeat">0 DH</span>
+        </div>
+        <div class="summary-row">
+            <span>مجموع مصاريف الهري الشهري:</span>
+            <span class="val-num" id="sumGroc">0 DH</span>
+        </div>
+        <div class="summary-row">
+            <span>مجموع البوطة الشهري:</span>
+            <span class="val-num" id="sumGas">0 DH</span>
+        </div>
+        <div class="summary-row">
+            <span>مجموع الأسابيع الـ 4 كاملة:</span>
+            <span class="val-num" id="sumWeekly">0 DH</span>
+        </div>
+        <div class="summary-row total">
+            <span>إجمالي المصاريف الكلية:</span>
+            <span class="val-num" id="sumTotal">0 DH</span>
+        </div>
+        <div class="summary-row total" style="background: #f2f9f6; padding: 10px; border-radius: 8px; margin-top: 8px;">
+            <span>المتبقي من الصالير:</span>
+            <span class="val-num rem-positive" id="netSalary">0 DH</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const defaultWeeksData = {
+        1: { 
+            vegList: [{ name: "بطاطس", qty: 6, price: 5 }, { name: "طماطم", qty: 2, price: 5 }, { name: "بصل", qty: 3, price: 6 }],
+            meatList: [{ name: "دجاج", qty: 2, price: 20 }, { name: "لحم", qty: 1, price: 90 }],
+            other: 50 
+        },
+        2: { 
+            vegList: [{ name: "بطاطس", qty: 6, price: 5 }, { name: "طماطم", qty: 2, price: 5 }, { name: "بصل", qty: 3, price: 6 }],
+            meatList: [{ name: "دجاج", qty: 2, price: 20 }, { name: "لحم", qty: 1, price: 90 }],
+            other: 50 
+        },
+        3: { 
+            vegList: [{ name: "بطاطس", qty: 6, price: 5 }, { name: "طماطم", qty: 2, price: 5 }, { name: "بصل", qty: 3, price: 6 }],
+            meatList: [{ name: "دجاج", qty: 2, price: 20 }, { name: "لحم", qty: 1, price: 90 }],
+            other: 50 
+        },
+        4: { 
+            vegList: [{ name: "بطاطس", qty: 6, price: 5 }, { name: "طماطم", qty: 2, price: 5 }, { name: "بصل", qty: 3, price: 6 }],
+            meatList: [{ name: "دجاج", qty: 2, price: 20 }, { name: "لحم", qty: 1, price: 90 }],
+            other: 50 
+        }
+    };
+
+    const defaultGrocList = [
+        { name: "زيت 5L", qty: 1, price: 95 },
+        { name: "طحين", qty: 1, price: 150 },
+        { name: "سكر", qty: 2, price: 25 },
+        { name: "أتاي", qty: 3, price: 20 },
+        { name: "مواد التنظيف", qty: 1, price: 100 }
+    ];
+
+    const defaultGasList = [
+        { name: "بوطة كبيرة", count: 2, price: 50 }
+    ];
+
+    let weeksData = JSON.parse(JSON.stringify(defaultWeeksData));
+    let grocList = JSON.parse(JSON.stringify(defaultGrocList));
+    let gasList = JSON.parse(JSON.stringify(defaultGasList));
+    let currentWeek = 1;
+
+    function loadSavedData() {
+        if (localStorage.getItem('myBudgetData')) {
+            try {
+                const saved = JSON.parse(localStorage.getItem('myBudgetData'));
+                if (saved.salary) document.getElementById('salaryInput').value = saved.salary;
+                if (saved.weeksData) weeksData = saved.weeksData;
+                if (saved.grocList) grocList = saved.grocList;
+                if (saved.gasList) gasList = saved.gasList;
+            } catch (e) {
+                console.error("خطأ في قراءة البيانات المحفوظة", e);
+            }
+        }
+    }
+
+    function saveAllData() {
+        const salary = parseFloat(document.getElementById('salaryInput').value) || 0;
+        const dataToSave = {
+            salary: salary,
+            weeksData: weeksData,
+            grocList: grocList,
+            gasList: gasList
+        };
+        localStorage.setItem('myBudgetData', JSON.stringify(dataToSave));
+        alert('✅ تم حفظ جميع البيانات بنجاح في ذاكرة المتصفح!');
+    }
+
+    function clearAllData() {
+        if (confirm('⚠️ هل أنت متأكد من حذف جميع البيانات وإعادة تعيين الحسابات؟')) {
+            localStorage.removeItem('myBudgetData');
+            document.getElementById('salaryInput').value = 3000;
+            weeksData = {
+                1: { vegList: [], meatList: [], other: 0 },
+                2: { vegList: [], meatList: [], other: 0 },
+                3: { vegList: [], meatList: [], other: 0 },
+                4: { vegList: [], meatList: [], other: 0 }
+            };
+            grocList = [];
+            gasList = [];
+            
+            renderVegTable();
+            renderMeatTable();
+            renderGrocTable();
+            renderGasTable();
+            calculateBudget();
+            alert('🗑️ تم مسح جميع البيانات بنجاح.');
+        }
+    }
+
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+
+        if (tabId === 'fullSummaryTab') {
+            generateFullSummaryDetails();
+        }
+    }
+
+    // 1. الخضار
+    function renderVegTable() {
+        const tbody = document.getElementById('vegTableBody');
+        tbody.innerHTML = '';
+
+        weeksData[currentWeek].vegList.forEach((item, index) => {
+            const sum = item.qty * item.price;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="name-input" value="${item.name}" oninput="updateVegData(${index}, 'name', this.value)"></td>
+                <td><input type="number" class="num-input" lang="fr" dir="ltr" value="${item.qty}" oninput="updateVegData(${index}, 'qty', this.value)"></td>
+                <td><input type="number" class="num-input" lang="fr" dir="ltr" value="${item.price}" oninput="updateVegData(${index}, 'price', this.value)"></td>
+                <td class="subtotal" id="veg_sum_${index}">${sum.toFixed(0)} DH</td>
+                <td class="action-cell">
+                    <button class="btn-edit" title="تعديل تفاصيل المادة" onclick="editVegItemPrompt(${index})">✏️</button>
+                    <button class="btn-del" title="حذف هذه المادة" onclick="removeVegItem(${index})">×</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function updateVegData(index, field, value) {
+        if (field === 'name') {
+            weeksData[currentWeek].vegList[index].name = value;
+        } else {
+            weeksData[currentWeek].vegList[index][field] = parseFloat(value) || 0;
+            const item = weeksData[currentWeek].vegList[index];
+            const sumCell = document.getElementById(`veg_sum_${index}`);
+            if (sumCell) sumCell.innerText = (item.qty * item.price).toFixed(0) + ' DH';
+        }
+        calculateBudget();
+    }
+
+    function editVegItemPrompt(index) {
+        const item = weeksData[currentWeek].vegList[index];
+        const newName = prompt("تعديل اسم الخضرة:", item.name);
+        if (newName === null) return;
+        const newQty = prompt("تعديل الكمية (kg):", item.qty);
+        if (newQty === null) return;
+        const newPrice = prompt("تعديل الثمن لكل كغ (DH):", item.price);
+        if (newPrice === null) return;
+
+        item.name = newName.trim() || item.name;
+        item.qty = parseFloat(newQty) || 0;
+        item.price = parseFloat(newPrice) || 0;
+
+        renderVegTable();
+        calculateBudget();
+    }
+
+    function addVegRow() {
+        weeksData[currentWeek].vegList.push({ name: "خضرة جديدة", qty: 1, price: 5 });
+        renderVegTable();
+        calculateBudget();
+    }
+
+    function removeVegItem(index) {
+        weeksData[currentWeek].vegList.splice(index, 1);
+        renderVegTable();
+        calculateBudget();
+    }
+
+    // 2. اللحوم
+    function renderMeatTable() {
+        const tbody = document.getElementById('meatTableBody');
+        tbody.innerHTML = '';
+
+        weeksData[currentWeek].meatList.forEach((item, index) => {
+            const sum = item.qty * item.price;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="name-input" value="${item.name}" oninput="updateMeatData(${index}, 'name', this.value)"></td>
+                <td><input type="number" class="num-input" lang="fr" dir="ltr" value="${item.qty}" oninput="updateMeatData(${index}, 'qty', this.value)"></td>
+                <td><input type="number" class="num-input" lang="fr" dir="ltr" value="${item.price}" oninput="updateMeatData(${index}, 'price', this.value)"></td>
+                <td class="subtotal" id="meat_sum_${index}">${sum.toFixed(0)} DH</td>
+                <td class="action-cell">
+                    <button class="btn-edit" title="تعديل تفاصيل المادة" onclick="editMeatItemPrompt(${index})">✏️</button>
+                    <button class="btn-del" title="حذف هذه المادة" onclick="removeMeatItem(${index})">×</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function updateMeatData(index, field, value) {
+        if (field === 'name') {
+            weeksData[currentWeek].meatList[index].name = value;
+        } else {
+            weeksData[currentWeek].meatList[index][field] = parseFloat(value) || 0;
+            const item = weeksData[currentWeek].meatList[index];
+            const sumCell = document.getElementById(`meat_sum_${index}`);
+            if (sumCell) sumCell.innerText = (item.qty * item.price).toFixed(0) + ' DH';
+        }
+        calculateBudget();
+    }
+
+    function editMeatItemPrompt(index) {
+        const item = weeksData[currentWeek].meatList[index];
+        const newName = prompt("تعديل الاسم:", item.name);
+        if (newName === null) return;
+        const newQty = prompt("تعديل الكمية (kg):", item.qty);
+        if (newQty === null) return;
+        const newPrice = prompt("تعديل الثمن (DH):", item.price);
+        if (newPrice === null) return;
+
+        item.name = newName.trim() || item.name;
+        item.qty = parseFloat(newQty) || 0;
+        item.price = parseFloat(newPrice) || 0;
+
+        renderMeatTable();
+        calculateBudget();
+    }
+
+    function addMeatRow() {
+        weeksData[currentWeek].meatList.push({ name: "نوع جديد", qty: 1, price: 20 });
+        renderMeatTable();
+        calculateBudget();
+    }
+
+    function removeMeatItem(index) {
+        weeksData[currentWeek].meatList.splice(index, 1);
+        renderMeatTable();
+        calculateBudget();
+    }
+
+    // 3. الهري
+    function renderGrocTable() {
+        const tbody = document.getElementById('grocTableBody');
+        tbody.innerHTML = '';
+
+        grocList.forEach((item, index) => {
+            const sum = item.qty * item.price;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="name-input" value="${item.name}" oninput="updateGrocData(${index}, 'name', this.value)"></td>
+                <td><input type="number" class="num-input" lang="fr" dir="ltr" value="${item.qty}" oninput="updateGrocData(${index}, 'qty', this.value)"></td>
+                <td><input type="number" class="num-input" lang="fr" dir="ltr" value="${item.price}" oninput="updateGrocData(${index}, 'price', this.value)"></td>
+                <td class="subtotal" id="groc_sum_${index}">${sum.toFixed(0)} DH</td>
+                <td class="action-cell">
+                    <button class="btn-edit" title="تعديل تفاصيل المادة" onclick="editGrocItemPrompt(${index})">✏️</button>
+                    <button class="btn-del" title="حذف هذه المادة" onclick="removeGrocItem(${index})">×</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function updateGrocData(index, field, value) {
+        if (field === 'name') {
+            grocList[index].name = value;
+        } else {
+            grocList[index][field] = parseFloat(value) || 0;
+            const item = grocList[index];
+            const sumCell = document.getElementById(`groc_sum_${index}`);
+            if (sumCell) sumCell.innerText = (item.qty * item.price).toFixed(0) + ' DH';
+        }
+        calculateBudget();
+    }
+
+    function editGrocItemPrompt(index) {
+        const item = grocList[index];
+        const newName = prompt("تعديل اسم المادة الغذائية:", item.name);
+        if (newName === null) return;
+        const newQty = prompt("تعديل الكمية/العدد:", item.qty);
+        if (newQty === null) return;
+        const newPrice = prompt("تعديل سعر الواحدة (DH):", item.price);
+        if (newPrice === null) return;
+
+        item.name = newName.trim() || item.name;
+        item.qty = parseFloat(newQty) || 0;
+        item.price = parseFloat(newPrice) || 0;
+
+        renderGrocTable();
+        calculateBudget();
+    }
+
+    function addGrocRow() {
+        grocList.push({ name: "مادة جديدة", qty: 1, price: 10 });
+        renderGrocTable();
+        calculateBudget();
+    }
+
+    function removeGrocItem(index) {
+        grocList.splice(index, 1);
+        renderGrocTable();
+        calculateBudget();
+    }
+
+    // 4. البوطة
+    function renderGasTable() {
+        const tbody = document.getElementById('gasTableBody');
+        tbody.innerHTML = '';
+
+        gasList.forEach((item, index) => {
+            const sum = item.count * item.price;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="name-input" value="${item.name}" oninput="updateGasData(${index}, 'name', this.value)"></td>
+                <td><input type="number" class="num-input" lang="fr" dir="ltr" value="${item.count}" oninput="updateGasData(${index}, 'count', this.value)"></td>
+                <td><input type="number" class="num-input" lang="fr" dir="ltr" value="${item.price}" oninput="updateGasData(${index}, 'price', this.value)"></td>
+                <td class="subtotal" id="gas_sum_${index}">${sum.toFixed(0)} DH</td>
+                <td class="action-cell">
+                    <button class="btn-edit" title="تعديل تفاصيل المادة" onclick="editGasItemPrompt(${index})">✏️</button>
+                    <button class="btn-del" title="حذف هذه المادة" onclick="removeGasItem(${index})">×</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function updateGasData(index, field, value) {
+        if (field === 'name') {
+            gasList[index].name = value;
+        } else {
+            gasList[index][field] = parseFloat(value) || 0;
+            const item = gasList[index];
+            const sumCell = document.getElementById(`gas_sum_${index}`);
+            if (sumCell) sumCell.innerText = (item.count * item.price).toFixed(0) + ' DH';
+        }
+        calculateBudget();
+    }
+
+    function editGasItemPrompt(index) {
+        const item = gasList[index];
+        const newName = prompt("تعديل وصف البوطة:", item.name);
+        if (newName === null) return;
+        const newCount = prompt("تعديل عدد البوطات:", item.count);
+        if (newCount === null) return;
+        const newPrice = prompt("تعديل سعر الواحدة (DH):", item.price);
+        if (newPrice === null) return;
+
+        item.name = newName.trim() || item.name;
+        item.count = parseFloat(newCount) || 0;
+        item.price = parseFloat(newPrice) || 0;
+
+        renderGasTable();
+        calculateBudget();
+    }
+
+    function addGasRow() {
+        gasList.push({ name: "بوطة إضافية", count: 1, price: 50 });
+        renderGasTable();
+        calculateBudget();
+    }
+
+    function removeGasItem(index) {
+        gasList.splice(index, 1);
+        renderGasTable();
+        calculateBudget();
+    }
+
+    function switchWeek() {
+        currentWeek = document.getElementById('weekSelector').value;
+        document.getElementById('otherCost').value = weeksData[currentWeek].other;
+        renderVegTable();
+        renderMeatTable();
+        calculateBudget();
+    }
+
+    function saveWeekData() {
+        weeksData[currentWeek].other = parseFloat(document.getElementById('otherCost').value) || 0;
+        calculateBudget();
+    }
+
+    function calculateBudget() {
+        const salary = parseFloat(document.getElementById('salaryInput').value) || 0;
+
+        let totalGas = 0;
+        gasList.forEach(g => { totalGas += g.count * g.price; });
+
+        let totalGroc = 0;
+        grocList.forEach(gr => { totalGroc += gr.qty * gr.price; });
+
+        let totalWeekly = 0;
+        let currVegTotal = 0;
+        let currMeatTotal = 0;
+
+        for (let w = 1; w <= 4; w++) {
+            let vegSum = 0;
+            weeksData[w].vegList.forEach(v => { vegSum += v.qty * v.price; });
+
+            let meatSum = 0;
+            weeksData[w].meatList.forEach(m => { meatSum += m.qty * m.price; });
+
+            totalWeekly += vegSum + meatSum + weeksData[w].other;
+
+            if (w == currentWeek) {
+                currVegTotal = vegSum;
+                currMeatTotal = meatSum;
+            }
+        }
+
+        const grandTotal = totalGas + totalGroc + totalWeekly;
+        const net = salary - grandTotal;
+
+        document.getElementById('currWeekVeg').innerText = Math.round(currVegTotal) + ' DH';
+        document.getElementById('currWeekMeat').innerText = Math.round(currMeatTotal) + ' DH';
+        document.getElementById('sumGroc').innerText = Math.round(totalGroc) + ' DH';
+        document.getElementById('sumGas').innerText = Math.round(totalGas) + ' DH';
+        document.getElementById('sumWeekly').innerText = Math.round(totalWeekly) + ' DH';
+        document.getElementById('sumTotal').innerText = Math.round(grandTotal) + ' DH';
+
+        const netEl = document.getElementById('netSalary');
+        netEl.innerText = Math.round(net) + ' DH';
+
+        if (net < 0) {
+            netEl.className = 'val-num rem-negative';
+        } else {
+            netEl.className = 'val-num rem-positive';
+        }
+    }
+
+    function generateFullSummaryDetails() {
+        const container = document.getElementById('summaryDetailsContainer');
+        container.innerHTML = '';
+
+        let grocHtml = `<div class="summary-box-detail">
+            <h3><span>🛒 قسم الهري ومواد التموين</span></h3>
+            <ul class="summary-item-list">`;
+        let totalGroc = 0;
+        grocList.forEach(item => {
+            const sum = item.qty * item.price;
+            totalGroc += sum;
+            grocHtml += `<li><span>${item.name} (<span class="latin-num">${item.qty} × ${item.price} DH</span>)</span><b class="latin-num">${sum} DH</b></li>`;
+        });
+        grocHtml += `</ul><div class="summary-subtotal-badge">مجموع الهري: <span class="latin-num">${totalGroc} DH</span></div></div>`;
+        container.innerHTML += grocHtml;
+
+        let gasHtml = `<div class="summary-box-detail">
+            <h3><span>🔥 قسم البوطة</span></h3>
+            <ul class="summary-item-list">`;
+        let totalGas = 0;
+        gasList.forEach(item => {
+            const sum = item.count * item.price;
+            totalGas += sum;
+            gasHtml += `<li><span>${item.name} (<span class="latin-num">${item.count} عدد × ${item.price} DH</span>)</span><b class="latin-num">${sum} DH</b></li>`;
+        });
+        gasHtml += `</ul><div class="summary-subtotal-badge">مجموع البوطة: <span class="latin-num">${totalGas} DH</span></div></div>`;
+        container.innerHTML += gasHtml;
+
+        let totalAllWeeks = 0;
+        for (let w = 1; w <= 4; w++) {
+            const wData = weeksData[w];
+            let weekVegSum = 0;
+            let weekMeatSum = 0;
+
+            let weekHtml = `<div class="summary-box-detail">
+                <h3><span>📅 الأسبوع <span class="latin-num">${w}</span></span></h3>
+                <strong style="font-size:0.85rem; color:#16a085;">الخضار:</strong>
+                <ul class="summary-item-list">`;
+
+            wData.vegList.forEach(v => {
+                const s = v.qty * v.price;
+                weekVegSum += s;
+                weekHtml += `<li><span>${v.name} (<span class="latin-num">${v.qty} kg × ${v.price} DH</span>)</span><b class="latin-num">${s} DH</b></li>`;
+            });
+
+            weekHtml += `</ul><strong style="font-size:0.85rem; color:#16a085;">اللحوم والأسماك:</strong>
+                <ul class="summary-item-list">`;
+
+            wData.meatList.forEach(m => {
+                const s = m.qty * m.price;
+                weekMeatSum += s;
+                weekHtml += `<li><span>${m.name} (<span class="latin-num">${m.qty} kg × ${m.price} DH</span>)</span><b class="latin-num">${s} DH</b></li>`;
+            });
+
+            weekHtml += `</ul>
+                <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:8px;">
+                    <span>مصاريف طارئة أسبوعية:</span><b class="latin-num">${wData.other} DH</b>
+                </div>`;
+
+            const weekTotal = weekVegSum + weekMeatSum + wData.other;
+            totalAllWeeks += weekTotal;
+
+            weekHtml += `<div class="summary-subtotal-badge">إجمالي الأسبوع ${w}: <span class="latin-num">${weekTotal} DH</span></div></div>`;
+            container.innerHTML += weekHtml;
+        }
+    }
+
+    loadSavedData();
+    renderVegTable();
+    renderMeatTable();
+    renderGrocTable();
+    renderGasTable();
+    calculateBudget();
+</script>
+
+</body>
+</html>

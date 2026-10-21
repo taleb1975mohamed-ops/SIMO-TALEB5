@@ -1,0 +1,9 @@
+{
+  "appId": "com.mohamedtaleb.budgetauto",
+  "appName": "تنظيم الميزانية والحساب التلقائي",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
