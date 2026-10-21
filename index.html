@@ -870,6 +870,60 @@
     </div>
 </div>
 
+<!-- 3. نافذة تحميل وحفظ تقرير PDF المخصصة للهاتف والكمبيوتر -->
+<div class="modal-overlay" id="pdfDownloadModal">
+    <div class="modal-box" style="max-width: 500px; max-height: 90vh; overflow-y: auto; text-align: center;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+            <h3 style="margin: 0; font-size: 1.15rem; color: #065f46; display:flex; align-items:center; gap: 8px;">
+                <span>📄</span> <span>تقرير الميزانية جاهز للحفظ</span>
+            </h3>
+            <button onclick="closePdfDownloadModal()" style="background:none; border:none; font-size:1.6rem; cursor:pointer; color:#64748b; line-height: 1; padding: 0 4px;">&times;</button>
+        </div>
+
+        <p style="font-size: 0.9rem; color: #475569; margin-bottom: 14px; text-align: right; line-height: 1.6;">
+            تم إنشاء التقرير بنجاح. إذا لم يبدأ التنزيل تلقائياً في هاتفك، اختر الطريقة الأنسب لك لحفظه أو إرساله فوراً:
+        </p>
+
+        <!-- معاينة مصغرة حية للتقرير -->
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 8px; margin-bottom: 14px; max-height: 160px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+            <img id="modalReportPreview" src="" alt="معاينة التقرير" style="max-width: 100%; max-height: 150px; object-fit: contain; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        </div>
+
+        <!-- أزرار الحفظ المباشر في الهاتف -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- زر المشاركة في الهاتف / واتساب / درايف (يعمل 100% في أندرويد وآيفون) -->
+            <button id="modalShareBtn" onclick="shareActivePdf()" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; padding: 13px 16px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">
+                <span style="font-size: 1.25rem;">📲</span> 
+                <span>مشاركة وحفظ في الهاتف (واتساب / درايف / الملفات)</span>
+            </button>
+
+            <!-- زر التنزيل المباشر بصيغة PDF -->
+            <button onclick="handleDirectPdfDownload()" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, #059669, #047857); color: white; border: none; padding: 13px 16px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 12px rgba(5,150,105,0.25);">
+                <span style="font-size: 1.25rem;">📥</span> 
+                <span>تنزيل ملف الـ PDF مباشرة للجهاز</span>
+            </button>
+
+            <!-- زر حفظ التقرير كصورة عالية الدقة في معرض الصور (Galerie) -->
+            <button onclick="saveReportAsImage()" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: #0284c7; color: white; border: none; padding: 12px 16px; border-radius: 12px; font-weight: 700; font-size: 0.92rem; cursor: pointer;">
+                <span style="font-size: 1.15rem;">🖼️</span> 
+                <span>حفظ التقرير كصورة في ألبوم الصور (Galerie Photos)</span>
+            </button>
+
+            <!-- زر فتح التقرير في المتصفح -->
+            <button onclick="openPdfInNewTab()" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 0.88rem; cursor: pointer;">
+                <span>👁️</span> 
+                <span>فتح وعرض التقرير كاملاً في نافذة جديدة</span>
+            </button>
+        </div>
+
+        <div style="margin-top: 14px; text-align: center;">
+            <button onclick="closePdfDownloadModal()" style="background: none; border: none; color: #64748b; font-size: 0.88rem; font-weight: bold; cursor: pointer; text-decoration: underline;">
+                إغلاق النافذة
+            </button>
+        </div>
+    </div>
+</div>
+
 
 
 <script>
@@ -1100,21 +1154,120 @@
     let currentPdfBlob = null;
     let currentPdfUrl = null;
     let currentPdfFileName = '';
+    let currentReportImgData = null;
+
+    function openPdfDownloadModal() {
+        const modal = document.getElementById('pdfDownloadModal');
+        if (modal) {
+            modal.classList.add('active');
+            const preview = document.getElementById('modalReportPreview');
+            if (preview && currentReportImgData) {
+                preview.src = currentReportImgData;
+            }
+        }
+    }
+
+    function closePdfDownloadModal() {
+        const modal = document.getElementById('pdfDownloadModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
 
     async function shareActivePdf() {
+        if (!currentPdfBlob) {
+            showStatus('جاري إنشاء التقرير أولاً...', 'loading');
+            await downloadPdfReport();
+        }
         if (!currentPdfBlob) return;
+
         try {
-            const file = new File([currentPdfBlob], currentPdfFileName, { type: 'application/pdf' });
+            const file = new File([currentPdfBlob], currentPdfFileName || 'Taqreer-Meezaniya.pdf', { type: 'application/pdf' });
             if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     title: 'تقرير تنظيم الميزانية والحساب التلقائي',
                     text: 'تقرير الميزانية والمصاريف الشهرية - إعداد: محمد طالب',
                     files: [file]
                 });
-                showStatus('✅ تمت المشاركة بنجاح!', 'success');
+                showStatus('✅ تمت مشاركة وحفظ التقرير بنجاح!', 'success');
+                return;
+            } else if (navigator.share) {
+                await navigator.share({
+                    title: 'تقرير تنظيم الميزانية والحساب التلقائي',
+                    text: 'تقرير الميزانية والمصاريف الشهرية - إعداد: محمد طالب'
+                });
+                return;
             }
         } catch(e) {
-            if (e.name !== 'AbortError') console.warn(e);
+            if (e.name !== 'AbortError') {
+                console.warn('Share issue, falling back to download:', e);
+                handleDirectPdfDownload();
+            }
+            return;
+        }
+
+        // في حال عدم دعم navigator.share، يتم التنزيل المباشر
+        handleDirectPdfDownload();
+    }
+
+    function handleDirectPdfDownload() {
+        if (!currentPdfBlob || !currentPdfUrl) {
+            downloadPdfReport();
+            return;
+        }
+
+        try {
+            const dl = document.createElement('a');
+            dl.href = currentPdfUrl;
+            dl.download = currentPdfFileName || 'Taqreer-Meezaniya.pdf';
+            dl.target = '_blank';
+            document.body.appendChild(dl);
+            dl.click();
+            setTimeout(() => {
+                if (document.body.contains(dl)) document.body.removeChild(dl);
+            }, 1200);
+        } catch(e) {
+            console.warn('Direct click download failed:', e);
+        }
+
+        // للهواتف الذكية (أندرويد وآيفون): فتح التقرير أيضاً في لسان جديد لعرضه وحفظه عبر المتصفح
+        const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+        if (isMobile) {
+            setTimeout(() => {
+                window.open(currentPdfUrl, '_blank');
+            }, 300);
+        }
+
+        showStatus('📥 تم طلب تنزيل ملف PDF!', 'success');
+    }
+
+    function saveReportAsImage() {
+        if (!currentReportImgData) {
+            showStatus('جاري تجهيز الصورة...', 'loading');
+            downloadPdfReport();
+            return;
+        }
+        try {
+            const dl = document.createElement('a');
+            dl.href = currentReportImgData;
+            const dateStr = new Date().toISOString().split('T')[0];
+            dl.download = `Taqreer-Meezaniya-MohamedTaleb-${dateStr}.png`;
+            document.body.appendChild(dl);
+            dl.click();
+            setTimeout(() => {
+                if (document.body.contains(dl)) document.body.removeChild(dl);
+            }, 1200);
+            showStatus('🖼️ تم تنزيل صورة التقرير عالية الدقة لهاتفك!', 'success');
+        } catch(e) {
+            console.error('Image download error:', e);
+        }
+    }
+
+    function openPdfInNewTab() {
+        if (currentPdfUrl) {
+            window.open(currentPdfUrl, '_blank');
+        } else {
+            downloadPdfReport();
         }
     }
 
@@ -1127,7 +1280,12 @@
 
         try {
             if (document.fonts) {
-                try { await document.fonts.ready; } catch(e) {}
+                try {
+                    await Promise.race([
+                        document.fonts.ready,
+                        new Promise(resolve => setTimeout(resolve, 800))
+                    ]);
+                } catch(e) {}
             }
 
             const salary = parseFloat(toLatin(document.getElementById('salaryInput').value)) || 0;
@@ -1484,6 +1642,13 @@
                 pageIndex++;
             }
 
+            // حفظ صورة التقرير عالية الدقة للمعاينة والحفظ المباشر بالهاتف
+            try {
+                currentReportImgData = canvas.toDataURL('image/png', 0.95);
+            } catch (e) {
+                console.warn('Canvas toDataURL warning:', e);
+            }
+
             const dateStr = new Date().toISOString().split('T')[0];
             const fileName = `Taqreer-Meezaniya-MohamedTaleb-${dateStr}.pdf`;
             const pdfBlob = pdf.output('blob');
@@ -1493,33 +1658,24 @@
             currentPdfUrl = blobUrl;
             currentPdfFileName = fileName;
 
-            // تنزيل مباشر وفوري لملف PDF
-            const dl = document.createElement('a');
-            dl.href = blobUrl;
-            dl.download = fileName;
-            dl.style.display = 'none';
-            document.body.appendChild(dl);
-            dl.click();
-            setTimeout(() => {
-                if (document.body.contains(dl)) document.body.removeChild(dl);
-            }, 1000);
-
-            // إشعار فوري مع زر تنزيل يدوي مباشر في حال حظر المتصفح للتنزيل التلقائي
-            const notice = document.getElementById('statusNotice');
-            if (notice) {
-                notice.className = 'success';
-                notice.style.display = 'block';
-                const canShare = Boolean(navigator.share && navigator.canShare);
-                notice.innerHTML = `
-                    <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
-                        <span>✅ تم إنشاء تقرير PDF وبدء تنزيله بنجاح!</span>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:4px;">
-                            <a href="${blobUrl}" download="${fileName}" style="background:#059669; color:#fff; text-decoration:none; padding:7px 14px; border-radius:8px; font-size:0.88rem; font-weight:bold; display:inline-block;">📥 اضغط هنا إذا لم يبدأ التنزيل تلقائياً</a>
-                            ${canShare ? `<button onclick="shareActivePdf()" style="background:#2563eb; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-size:0.88rem; font-weight:bold; cursor:pointer;">📲 مشاركة في واتساب أو الهاتف</button>` : ''}
-                        </div>
-                    </div>
-                `;
+            // 1. محاولة تنزيل تلقائي فوري عبر الرابط (للكمبيوتر والمتصفحات المتوافقة)
+            try {
+                const dl = document.createElement('a');
+                dl.href = blobUrl;
+                dl.download = fileName;
+                dl.style.display = 'none';
+                document.body.appendChild(dl);
+                dl.click();
+                setTimeout(() => {
+                    if (document.body.contains(dl)) document.body.removeChild(dl);
+                }, 1000);
+            } catch (e) {
+                console.warn('Auto download attempt bypassed:', e);
             }
+
+            // 2. فتح نافذة الحفظ التفاعلية المخصصة للهاتف والكمبيوتر فوراً
+            openPdfDownloadModal();
+            showStatus('✅ تم إنشاء التقرير بنجاح! اختر طريقة الحفظ في هاتفك.', 'success');
 
         } catch (err) {
             console.error('خطأ في توليد الـ PDF:', err);
