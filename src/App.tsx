@@ -37,6 +37,7 @@ import {
   generateComprehensiveStatisticsPdf
 } from './utils/helpers';
 import { AppointeeCardModal } from './components/AppointeeCardModal';
+import appLogo from './assets/images/app_logo_emblem_1792599403584.jpg';
 
 const EMPTY_FORM: ReligiousPerson = {
   p_ar: '',
@@ -408,16 +409,26 @@ export default function App() {
       {/* Main Container */}
       <div className="max-w-[1400px] mx-auto">
         {/* Top Header Bar */}
-        <header className="bg-[#e0e5ec] rounded-3xl p-5 sm:p-6 mb-6 shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.7)] border border-white/40 flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-[#27ae60] text-white flex items-center justify-center shadow-[4px_4px_10px_rgba(39,174,96,0.4)]">
-              <Building2 className="w-7 h-7" />
+        <header className="bg-[#e0e5ec] rounded-3xl p-4 sm:p-6 mb-6 shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.7)] border border-white/40 flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
+          <div className="flex items-center gap-3.5 sm:gap-4">
+            <div className="relative shrink-0">
+              <img
+                src={appLogo}
+                alt="شعار منظومة إدارة القيمين الدينيين"
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover shadow-[6px_6px_14px_rgba(163,177,198,0.7),-6px_-6px_14px_rgba(255,255,255,0.9)] border-2 border-[#27ae60]/40 p-0.5 bg-white transition-transform hover:scale-105"
+                referrerPolicy="no-referrer"
+              />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-black text-[#2c3e50]">
-                منظومة إدارة القيمين الدينيين
-              </h1>
-              <p className="text-xs text-slate-500 font-medium">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-black text-[#2c3e50] tracking-tight">
+                  منظومة إدارة القيمين الدينيين
+                </h1>
+                <span className="inline-block px-2.5 py-0.5 text-[11px] font-extrabold bg-[#27ae60]/15 text-[#1e824c] rounded-full border border-[#27ae60]/30 shadow-xs">
+                  المملكة المغربية
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
                 تدبير شؤون الأئمة، الخطباء، المؤذنين، المنظفين والتعويضات الشهرية بالمساجد
               </p>
             </div>

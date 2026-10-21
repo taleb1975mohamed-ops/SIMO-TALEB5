@@ -1,17 +1,23 @@
 {
-  "id": "/budget-auto-app-mohamedtaleb/",
-  "name": "تطبيق تنظيم الميزانية والحساب التلقائي - محمد طالب",
-  "short_name": "تنظيم الميزانية",
-  "description": "تطبيق مستقل لتنظيم الميزانية ومصاريف الأسابيع والراتب الشهري",
+  "id": "/qayimin-app-mohamedtaleb/",
+  "name": "منظومة إدارة القيمين الدينيين - تسيير المساجد",
+  "short_name": "إدارة القيمين",
+  "description": "منظومة متكاملة لتدبير وتسيير شؤون القيمين الدينيين بالمساجد (الأئمة، الخطباء، المؤذنين، المنظفين) والتعويضات الشهرية",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f1f5f9",
-  "theme_color": "#059669",
+  "background_color": "#e0e5ec",
+  "theme_color": "#27ae60",
   "lang": "ar",
   "dir": "rtl",
   "icons": [
+    {
+      "src": "/logo.jpg",
+      "sizes": "1024x1024",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
     {
       "src": "/pwa-192x192.png",
       "sizes": "192x192",

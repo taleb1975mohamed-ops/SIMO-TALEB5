@@ -372,8 +372,9 @@ export async function generateAppointeesListPdf(
       </div>
 
       <div style="text-align: center; flex: 1; padding: 0 15px;">
-        <div style="display: inline-block; padding: 4px 14px; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; margin-bottom: 6px;">
-          <span style="font-size: 11px; font-weight: bold; color: #15803d;">منظومة تدبير القيمين الدينيين</span>
+        <img src="/logo.jpg" style="width: 48px; height: 48px; border-radius: 10px; object-fit: contain; margin-bottom: 4px; display: inline-block; border: 1px solid #d1fae5;" />
+        <div style="display: block; margin-bottom: 4px;">
+          <span style="font-size: 11px; font-weight: bold; color: #15803d; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 3px 12px; display: inline-block;">منظومة تدبير القيمين الدينيين</span>
         </div>
         <h2 style="margin: 0; font-size: 19px; font-weight: 800; color: #1e293b;">سجل ولائحة القيمين الدينيين بالمساجد</h2>
         <p style="margin: 4px 0 0; font-size: 11px; color: #64748b;">
@@ -692,8 +693,9 @@ export async function generateComprehensiveStatisticsPdf(
       </div>
 
       <div style="text-align: center; flex: 1; padding: 0 15px;">
-        <div style="display: inline-block; padding: 4px 14px; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; margin-bottom: 6px;">
-          <span style="font-size: 11px; font-weight: bold; color: #15803d;">لوحة القيادة والمؤشرات الإحصائية</span>
+        <img src="/logo.jpg" style="width: 48px; height: 48px; border-radius: 10px; object-fit: contain; margin-bottom: 4px; display: inline-block; border: 1px solid #d1fae5;" />
+        <div style="display: block; margin-bottom: 4px;">
+          <span style="font-size: 11px; font-weight: bold; color: #15803d; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 3px 12px; display: inline-block;">لوحة القيادة والمؤشرات الإحصائية</span>
         </div>
         <h2 style="margin: 0; font-size: 19px; font-weight: 800; color: #1e293b;">تقرير الإحصائيات الشاملة للقيمين الدينيين والمساجد</h2>
         <p style="margin: 4px 0 0; font-size: 11px; color: #64748b;">

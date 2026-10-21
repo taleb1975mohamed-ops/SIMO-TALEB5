@@ -20,6 +20,7 @@ import { ReligiousPerson } from '../types';
 import { formatCurrency, formatInputDateStr, formatToEnNumbers, saveAndDownloadPdf } from '../utils/helpers';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import appLogo from '../assets/images/app_logo_emblem_1792599403584.jpg';
 
 interface AppointeeCardModalProps {
   person: ReligiousPerson | null;
@@ -169,18 +170,35 @@ export const AppointeeCardModal: React.FC<AppointeeCardModalProps> = ({
         {/* Printable Card Container */}
         <div ref={cardRef} className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm print:p-6 print:border-none print:shadow-none text-slate-800">
           {/* Official Moroccan Administrative Header */}
-          <div className="border-b-2 border-slate-800 pb-4 mb-6 text-center">
-            <div className="flex justify-between items-center text-xs font-bold text-slate-600 mb-2">
-              <span>المملكة المغربية</span>
-              <span>وزارة الأوقاف والشؤون الإسلامية</span>
-              <span>مندوبية الشؤون الإسلامية</span>
+          <div className="border-b-2 border-slate-800 pb-4 mb-6">
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <div className="text-right text-xs font-bold text-slate-700 leading-relaxed">
+                <div>المملكة المغربية</div>
+                <div className="text-emerald-800 font-extrabold">وزارة الأوقاف والشؤون الإسلامية</div>
+                <div className="text-slate-500 text-[11px]">مندوبية الشؤون الإسلامية</div>
+              </div>
+              <div className="flex flex-col items-center">
+                <img
+                  src={appLogo}
+                  alt="شعار المنظومة"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover shadow-sm border border-emerald-600/30 p-0.5 bg-white"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="text-left text-xs font-bold text-slate-700 leading-relaxed" dir="ltr">
+                <div>Royaume du Maroc</div>
+                <div className="text-emerald-800 font-extrabold">Ministère des Habous</div>
+                <div className="text-slate-500 text-[11px]">Affaires Islamiques</div>
+              </div>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-wide mt-2">
-              بطاقة المعطيات الفردية للقيم الديني
-            </h2>
-            <p className="text-xs text-slate-500 mt-1">
-              Fiche Individuelle des Renseignements du Préposé Religieux
-            </p>
+            <div className="text-center mt-3 pt-2 border-t border-slate-200">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-wide">
+                بطاقة المعطيات الفردية للقيم الديني
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                Fiche Individuelle des Renseignements du Préposé Religieux
+              </p>
+            </div>
           </div>
 
           {/* Identity & Basic Header Banner */}
