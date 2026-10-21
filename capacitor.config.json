@@ -1,6 +1,6 @@
 {
-  "appId": "com.mohamedtaleb.budgetauto",
-  "appName": "تنظيم الميزانية والحساب التلقائي",
+  "appId": "com.mohamedtaleb.qayimin",
+  "appName": "إدارة القيمين الدينيين",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {
